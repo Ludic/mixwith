@@ -209,6 +209,46 @@ export const BareMixin = (mixin) => wrap(mixin, (s) => apply(s, mixin));
  */
 export const Mixin = (mixin) => DeDupe(Cached(BareMixin(mixin)));
 
+const SymbolName = Symbol.for('_Symbol_name_')
+const SymbolValue = Symbol.for('_Symbol_value_')
+/**
+ * Decorates a mixin function to add deduplication, application caching and
+ * instanceof support.
+ *
+ * @function
+ * @param {MixinFunction} mixin The mixin to wrap
+ * @return {MixinFunction} a new mixin function
+ */
+export const Interface = (name, mixin, value = true) => {
+  if(Symbol && Symbol.for){
+    mixin[SymbolName] = name;
+    mixin[SymbolValue] = value;
+    // mixin.prototype.is = value
+  }
+  return Mixin(mixin);
+}
+
+// helper method for checking Interface implementation
+
+Object.prototype.implements = function(check){
+  let symbol = false;
+
+  switch(typeof check){
+    case 'string':
+      symbol = Symbol.for(check);
+      break;
+    case 'symbol':
+      symbol = check;
+      break;
+    default:
+      if(check[SymbolName] != null){
+        symbol = Symbol.for(check[SymbolName])
+      }
+  }
+
+  return symbol ? this[symbol] != undefined : false;
+}
+
 /**
  * A fluent interface to apply a list of mixins to a superclass.
  *
@@ -233,8 +273,8 @@ export const mix = (superclass) => new MixinBuilder(superclass);
 
 class MixinBuilder {
 
-  constructor(superclass) {
-    this.superclass = superclass || class {};
+  constructor(superclass = class {}) {
+    this.superclass = superclass;
   }
 
   /**
@@ -244,6 +284,12 @@ class MixinBuilder {
    * @return {Function} a subclass of `superclass` with `mixins` applied
    */
   with(...mixins) {
-    return mixins.reduce((c, m) => m(c), this.superclass);
+    return mixins.reduce(this._reduce, this.superclass);
+  }
+
+  _reduce(c,m){
+    let ret = m(c);
+    ret.prototype[Symbol.for(m[SymbolName])] = m[SymbolValue];
+    return ret;
   }
 }
