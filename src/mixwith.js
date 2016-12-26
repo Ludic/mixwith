@@ -230,24 +230,27 @@ export const Interface = (name, mixin, value = true) => {
 
 // helper method for checking Interface implementation
 
-Object.prototype.implements = function(check){
-  let symbol = false;
+Object.defineProperty(Object.prototype, 'implements', {
+  enumerable: false,
+  value: function(check){
+    let symbol = false;
 
-  switch(typeof check){
-    case 'string':
-      symbol = Symbol.for(check);
-      break;
-    case 'symbol':
-      symbol = check;
-      break;
-    default:
-      if(check[SymbolName] != null){
-        symbol = Symbol.for(check[SymbolName])
-      }
-  }
+    switch(typeof check){
+      case 'string':
+        symbol = Symbol.for(check);
+        break;
+      case 'symbol':
+        symbol = check;
+        break;
+      default:
+        if(check[SymbolName] != null){
+          symbol = Symbol.for(check[SymbolName])
+        }
+    }
 
-  return symbol ? this[symbol] != undefined : false;
-}
+    return symbol ? this[symbol] != undefined : false;
+  },
+})
 
 /**
  * A fluent interface to apply a list of mixins to a superclass.

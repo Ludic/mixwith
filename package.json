@@ -2,21 +2,26 @@
   "name": "mixwith",
   "version": "0.1.1",
   "description": "A simple, powerful mixin applier for JavaScript classes",
-  "main": "mixwith.js",
+  "main": "dist/main.js",
   "directories": {
     "test": "test"
   },
   "dependencies": {},
   "devDependencies": {
-    "babel-plugin-transform-es2015-modules-umd": "^6.1.18",
+    "babel-core": "^6.21.0",
+    "babel-loader": "^6.2.10",
+    "babel-preset-es2015": "^6.18.0",
+    "babel-preset-stage-1": "^6.16.0",
     "chai": "^3.4.1",
     "event-stream": "^3.3.2",
     "gulp": "^3.9.0",
-    "gulp-babel": "^6.1.0"
+    "gulp-babel": "^6.1.0",
+    "webpack": "^2.2.0-rc.2"
   },
   "scripts": {
     "test": "mocha build/test",
-    "build": "gulp"
+    "build": "gulp",
+    "dev": "webpack --watch --config ./webpack.dev.config.js"
   },
   "repository": {
     "type": "git",
